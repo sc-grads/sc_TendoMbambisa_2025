@@ -1,0 +1,27 @@
+name: SQL Linting
+
+on:
+  push:
+    branches:
+      - main  # Runs when pushing to main
+  pull_request:  # Runs on PRs
+
+jobs:
+  lint-sql:
+    name: Lint SQL Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install SQLFluff
+        run: pip install sqlfluff
+
+      - name: Run SQLFluff Linter
+        run: sqlfluff lint --dialect mysql .
