@@ -1,6 +1,6 @@
 name: SQL Syntax Check
 
-on:
+on: #events
   push:
   pull_request:
 
@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 #this is an action in GitHub that clones your repo into the $GITHUB_WORKSPACE so other steps can use them
         
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -28,7 +28,6 @@ jobs:
           echo "Skipping $file due to errors"
           fi
           done
-
 
       - name: Lint SQL files
         run: sqlfluff lint DatabaseAdministration/SQLStatements --dialect mysql || echo "Linting completed with warnings"
