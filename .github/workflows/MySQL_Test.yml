@@ -2,6 +2,8 @@ name: SQL Syntax Check
 
 on: #events
   push:
+     branches:
+      - main  # Runs when pushing to main
   pull_request:
 
 jobs:
