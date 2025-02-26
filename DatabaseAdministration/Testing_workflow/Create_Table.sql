@@ -1,5 +1,4 @@
 CREATE TABLE users (
     id INT NOT NULL AUTO_INCREMENT,
-    email VARCHAR(50),
-    PRIMARY KEY (id)
+    email VARCHAR(50),PRIMARY KEY (id)
 );
