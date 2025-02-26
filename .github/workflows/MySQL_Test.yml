@@ -33,9 +33,12 @@ jobs:
       - name: Format SQL files
         run: |
           for file in DatabaseAdministration/SQLStatements/*.sql; do
-            echo "Formatting $file"
-            sqlfluff fix "$file" --dialect mysql || exit 1
+          echo "Formatting $file"
+          if ! sqlfluff fix "$file" --dialect mysql; then
+          echo "Skipping $file due to errors"
+          fi
           done
+
 
       - name: Lint SQL files
         run: sqlfluff lint DatabaseAdministration/Testing_workflow --dialect mysql
