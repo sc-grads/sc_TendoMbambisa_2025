@@ -32,7 +32,7 @@ jobs:
 
       - name: Format SQL files
         run: |
-          for file in DatabaseAdministration/Testing_workflow/*.sql; do
+          for file in DatabaseAdministration/SQLStatements/*.sql; do
             echo "Formatting $file"
             sqlfluff fix "$file" --dialect mysql || exit 1
           done
