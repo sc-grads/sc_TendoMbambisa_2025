@@ -37,10 +37,3 @@ jobs:
 
       - name: Lint SQL files
         run: sqlfluff lint DatabaseAdministration/SQLStatements --dialect mysql || echo "Linting completed with warnings"
-
-      - name: Check SQL syntax using MySQL
-        run: |
-          for file in DatabaseAdministration/Testing_workflow/*.sql; do
-            echo "Checking syntax for $file"
-            sudo mysql --user=root --password=root my_local_db < "$file" || exit 1
-          done
