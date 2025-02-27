@@ -11,6 +11,13 @@ select category_id, count(*) as total_products
 from Production.products
 group by category_id;
 
---Show all orders that were completed (order_status = 4) after January 1, 2023.
-select order_id,shipped_date from sales.orders
-where order_status=4 and shipped_date > '2018-01-01';
+--Show all orders that were completed (order_status = 4) after January 1, 2018.
+select order_id,order_date from sales.orders
+where order_status=4 and order_date > '2018-01-01';
+
+--Retrieve the average list price of products in each category, but only for categories where the average list price is greater than $500.
+select category_id ,avg(list_price) as average
+from production.products
+Group by category_id
+Having avg(list_price) >500;
+
