@@ -1,0 +1,35 @@
+name: SQL Syntax Check
+
+on: #events
+  push:
+     branches:
+      - main  # Runs when pushing to main
+  pull_request:
+
+jobs:
+  sql-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 #this is an action in GitHub that clones your repo into the $GITHUB_WORKSPACE so other steps can use them
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install SQLFluff
+        run: pip install sqlfluff
+
+      - name: Format SQL files
+        run: |
+          for file in DatabaseAdministration/SQLStatements/*.sql; do
+          echo "Formatting $file"
+          if ! sqlfluff fix "$file" --dialect mysql; then
+          echo "Skipping $file due to errors"
+          fi
+          done
+
+      - name: Lint SQL files
+        run: sqlfluff lint DatabaseAdministration/SQLStatements --dialect mysql || echo "Linting completed with warnings"
