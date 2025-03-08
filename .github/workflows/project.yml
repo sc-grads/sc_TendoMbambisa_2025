@@ -1,0 +1,31 @@
+name: AutoTest Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build API
+        run: dotnet build --no-restore
+
+      - name: Run Database Migration
+        run: dotnet ef database update
+
+      - name: Run API
+        run: dotnet run
