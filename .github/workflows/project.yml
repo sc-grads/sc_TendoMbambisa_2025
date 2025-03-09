@@ -19,9 +19,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'  # Using .NET 8
 
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef  # Installs EF Core CLI
-
       - name: Restore Dependencies
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet restore  # Restores dependencies
@@ -30,13 +27,9 @@ jobs:
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet build --no-restore  # Builds the project
 
-      - name: Apply Database Migrations
-        working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet ef database update --connection "$CONNECTION_STRING"  # Uses the hardcoded connection string
-
       - name: Run API (Background)
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: nohup dotnet run > api.log 2>&1 &  # Starts API in the background
+        run: nohup dotnet run > api.log 2>&1 &  # Starts API in the background (EnsureCreated will run here)
 
       - name: Install ngrok
         run: |
