@@ -20,19 +20,19 @@ jobs:
         run: dotnet tool install --global dotnet-ef  # Installs EF Core CLI
 
       - name: Restore Dependencies
-        working-directory: DatabaseAdministration/Project/SQLServerApi
+        working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet restore  # Restores dependencies
 
       - name: Build API
-        working-directory: DatabaseAdministration/Project/SQLServerApi
+        working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet build --no-restore  # Builds the project
 
       - name: Apply Database Migrations
-        working-directory: DatabaseAdministration/Project/SQLServerApi
+        working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet ef database update  # Runs EF Core migrations
 
       - name: Run API (Background)
-        working-directory: DatabaseAdministration/Project/SQLServerApi
+        working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet run &  # Starts API in the background
 
       - name: Install ngrok
@@ -51,6 +51,6 @@ jobs:
 
       - name: Insert Sample User
         run: |
-          curl -X POST "http://localhost:5000/api/database" \
+          curl -X POST "http://localhost:5085/api/database" \
             -H "Content-Type: application/json" \
             -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
