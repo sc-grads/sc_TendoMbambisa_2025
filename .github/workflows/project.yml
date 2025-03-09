@@ -9,7 +9,8 @@ jobs:
 
     env:
       CONNECTION_STRING: "Server=SAMBE2025018;Database=AutoTestDB;User Id=github_user1;Password=StrongPassword;TrustServerCertificate=true"  # Hardcoded connection string
-
+      API_PORT: 5085
+   
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3  # Pulls the latest code
@@ -41,7 +42,7 @@ jobs:
           unzip ngrok.zip
           rm ngrok.zip
           chmod +x ngrok
-          ./ngrok authtoken ${{ secrets.NGROK_AUTHTOKEN }}  # Use GitHub Secret for ngrok token
+          ./ngrok authtoken 2u0MGA1x5PgLMeIwSZWUeK7absI_7nTtDxDTiS16KZsugZ31v  # Use GitHub Secret for ngrok token
 
       - name: Start ngrok
         run: |
