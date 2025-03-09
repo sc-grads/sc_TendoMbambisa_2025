@@ -29,16 +29,21 @@ jobs:
 
       - name: Run API (Background)
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: nohup dotnet run > api.log 2>&1 &  # Starts API in the background (EnsureCreated will run here)
+        run: nohup dotnet run > api.log 2>&1 &  # Starts API in the background
 
       - name: Install ngrok
         run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list
-          apt update && apt install ngrok
+          # Download and install ngrok in the home directory
+          curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
+          unzip ngrok.zip
+          rm ngrok.zip
+          chmod +x ngrok
+          ./ngrok authtoken YOUR_NGROK_AUTHTOKEN  # Replace with your ngrok authtoken
 
       - name: Start ngrok
-        run: nohup ngrok http 5085 > ngrok.log 2>&1 &  # Exposes API through ngrok
+        run: |
+          # Start ngrok in the background
+          nohup ./ngrok http 5085 > ngrok.log 2>&1 &
 
       - name: Verify API is Running
         run: |
