@@ -27,9 +27,14 @@ jobs:
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet build --no-restore  # Builds the project
 
+      - name: create Database Migrations
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet ef migrations add InitialCreate --output-dir "Data/Migrations"  # Runs EF Core migrations
+
       - name: Apply Database Migrations
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet ef database update  # Runs EF Core migrations
+        
 
       - name: Run API (Background)
         working-directory: DatabaseAdministration/Project/SqlServerApi
