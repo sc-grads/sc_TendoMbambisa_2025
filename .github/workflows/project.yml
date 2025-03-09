@@ -1,31 +1,61 @@
-name: AutoTest Deployment
+name: AutoTest Database Automation
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Runs on Ubuntu
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Pulls the latest code
 
-      - name: Install .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.x'  # Using .NET 8
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef  # Installs EF Core CLI
+
+      - name: Restore Dependencies
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet restore  # Restores dependencies
 
       - name: Build API
-        run: dotnet build --no-restore
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet build --no-restore  # Builds the project
 
-      - name: Run Database Migration
-        run: dotnet ef database update
+      - name: create Database Migrations
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet ef migrations add InitialCreateV2 --output-dir "Data/Migrations"  # Runs EF Core migrations
 
-      - name: Run API
-        run: dotnet run
+      - name: Apply Database Migrations
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet ef database update  # Runs EF Core migrations
+        
+
+      - name: Run API (Background)
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet run &  # Starts API in the background
+
+      - name: Install ngrok
+        run: |
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list
+          apt update && apt install ngrok
+
+      - name: Start ngrok
+        run: ngrok http 5085 &  # Exposes API through ngrok
+
+      - name: Verify API is Running
+        run: |
+          sleep 10  # Wait for the API to fully start
+          curl -X GET "http://localhost:5085/api/database"  # Calls the API to verify it's running
+
+      - name: Insert Sample User
+        run: |
+          curl -X POST "http://localhost:5085/api/database" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
