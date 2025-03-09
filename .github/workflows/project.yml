@@ -7,6 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest  # Runs on Ubuntu
 
+    env:
+      CONNECTION_STRING: "Server=SAMBE2025018;Database=AutoTestDB;User Id=github_user1;Password=StrongPassword;TrustServerCertificate=true"  # Hardcoded connection string
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3  # Pulls the latest code
@@ -27,18 +30,17 @@ jobs:
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet build --no-restore  # Builds the project
 
-      - name: create Database Migrations
+      - name: Create Database Migrations
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet ef migrations add InitialCreateV2 --output-dir "Data/Migrations"  # Runs EF Core migrations
 
       - name: Apply Database Migrations
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet ef database update  # Runs EF Core migrations
-        
+        run: dotnet ef database update --connection "$CONNECTION_STRING"  # Uses the hardcoded connection string
 
       - name: Run API (Background)
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet run &  # Starts API in the background
+        run: nohup dotnet run > api.log 2>&1 &  # Starts API in the background
 
       - name: Install ngrok
         run: |
@@ -47,15 +49,20 @@ jobs:
           apt update && apt install ngrok
 
       - name: Start ngrok
-        run: ngrok http 5085 &  # Exposes API through ngrok
+        run: nohup ngrok http 5085 > ngrok.log 2>&1 &  # Exposes API through ngrok
 
       - name: Verify API is Running
         run: |
-          sleep 10  # Wait for the API to fully start
-          curl -X GET "http://localhost:5085/api/database"  # Calls the API to verify it's running
+          sleep 15  # Wait for the API to fully start
+          curl -X GET "http://localhost:5085/api/database" || exit 1  # Calls the API to verify it's running
 
       - name: Insert Sample User
         run: |
           curl -X POST "http://localhost:5085/api/database" \
             -H "Content-Type: application/json" \
-            -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
+            -d '{"name":"John","surname":"Doe","email":"john@example.com"}' || exit 1
+
+      - name: Stop API and ngrok
+        run: |
+          pkill -f "dotnet run"
+          pkill -f "ngrok http"
