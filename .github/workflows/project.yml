@@ -1,31 +1,53 @@
-name: AutoTest Deployment
+name: AutoTest Database Automation
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Runs on Ubuntu
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Pulls the latest code
 
-      - name: Install .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.x'  # Using .NET 8
 
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Install EF Core CLI
+        run: dotnet tool install --global dotnet-ef  # Installs EF Core CLI
+
+      - name: Restore Dependencies
+        run: |
+          cd DatabaseAdministration/Project/SQLServerApi  # Navigate to API directory
+          dotnet restore  # Restores dependencies
 
       - name: Build API
-        run: dotnet build --no-restore
+        run: |
+          cd DatabaseAdministration/Project/SQLServerApi
+          dotnet build --no-restore  # Builds the project
 
-      - name: Run Database Migration
-        run: dotnet ef database update
+      - name: Apply Database Migrations
+        run: |
+          cd DatabaseAdministration/Project/SQLServerApi
+          dotnet ef database update  # Runs the migration to create the database & tables
 
-      - name: Run API
-        run: dotnet run
+      - name: Run API (Background)
+        run: |
+          cd DatabaseAdministration/Project/SQLServerApi
+          dotnet run &  # Starts API in the background
+
+      - name: Install ngrok
+        run: |
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list
+          apt update && apt install ngrok
+
+      - name: Start ngrok
+        run: ngrok http 5000 &  # Exposes API through ngrok
+
+      - name: Insert Sample Data
+        run: |
+          curl -X POST "http://localhost:5000/api/user/add" -H "Content-Type: application/json" -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
