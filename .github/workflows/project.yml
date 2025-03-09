@@ -20,24 +20,20 @@ jobs:
         run: dotnet tool install --global dotnet-ef  # Installs EF Core CLI
 
       - name: Restore Dependencies
-        run: |
-          cd DatabaseAdministration/Project/SQLServerApi  # Navigate to API directory
-          dotnet restore  # Restores dependencies
+        working-directory: DatabaseAdministration/Project/SQLServerApi
+        run: dotnet restore  # Restores dependencies
 
       - name: Build API
-        run: |
-          cd DatabaseAdministration/Project/SQLServerApi
-          dotnet build --no-restore  # Builds the project
+        working-directory: DatabaseAdministration/Project/SQLServerApi
+        run: dotnet build --no-restore  # Builds the project
 
       - name: Apply Database Migrations
-        run: |
-          cd DatabaseAdministration/Project/SQLServerApi
-          dotnet ef database update  # Runs the migration to create the database & tables
+        working-directory: DatabaseAdministration/Project/SQLServerApi
+        run: dotnet ef database update  # Runs EF Core migrations
 
       - name: Run API (Background)
-        run: |
-          cd DatabaseAdministration/Project/SQLServerApi
-          dotnet run &  # Starts API in the background
+        working-directory: DatabaseAdministration/Project/SQLServerApi
+        run: dotnet run &  # Starts API in the background
 
       - name: Install ngrok
         run: |
@@ -46,8 +42,15 @@ jobs:
           apt update && apt install ngrok
 
       - name: Start ngrok
-        run: ngrok http 5000 &  # Exposes API through ngrok
+        run: ngrok http 5085 &  # Exposes API through ngrok
 
-      - name: Insert Sample Data
+      - name: Verify API is Running
         run: |
-          curl -X POST "http://localhost:5000/api/user/add" -H "Content-Type: application/json" -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
+          sleep 10  # Wait for the API to fully start
+          curl -X GET "http://localhost:5085/api/database"  # Calls the API to verify it's running
+
+      - name: Insert Sample User
+        run: |
+          curl -X POST "http://localhost:5000/api/database" \
+            -H "Content-Type: application/json" \
+            -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
