@@ -29,7 +29,7 @@ jobs:
 
       - name: create Database Migrations
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet ef migrations add InitialCreate --output-dir "Data/Migrations"  # Runs EF Core migrations
+        run: dotnet ef migrations add InitialCreateV2 --output-dir "Data/Migrations"  # Runs EF Core migrations
 
       - name: Apply Database Migrations
         working-directory: DatabaseAdministration/Project/SqlServerApi
