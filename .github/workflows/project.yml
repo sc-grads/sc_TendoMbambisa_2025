@@ -7,6 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest  # Runs on Ubuntu
 
+    env:
+      CONNECTION_STRING: "Server=SAMBE2025018;Database=AutoTestDB;User Id=github_user1;Password=StrongPassword;TrustServerCertificate=true"  # Hardcoded connection string
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3  # Pulls the latest code
@@ -16,9 +19,6 @@ jobs:
         with:
           dotnet-version: '8.0.x'  # Using .NET 8
 
-      - name: Install EF Core CLI
-        run: dotnet tool install --global dotnet-ef  # Installs EF Core CLI
-
       - name: Restore Dependencies
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet restore  # Restores dependencies
@@ -27,35 +27,38 @@ jobs:
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet build --no-restore  # Builds the project
 
-      - name: create Database Migrations
+      - name: List Working Directory
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet ef migrations add InitialCreateV2 --output-dir "Data/Migrations"  # Runs EF Core migrations
+        run: ls -la  # List files to verify the working directory
 
-      - name: Apply Database Migrations
+      - name: Run API (Foreground)
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet ef database update  # Runs EF Core migrations
-        
-
-      - name: Run API (Background)
-        working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet run &  # Starts API in the background
+        run: dotnet run  # Run API in the foreground to see logs
 
       - name: Install ngrok
         run: |
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list
-          apt update && apt install ngrok
+          curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
+          unzip ngrok.zip
+          rm ngrok.zip
+          chmod +x ngrok
+          ./ngrok authtoken YOUR_NGROK_AUTHTOKEN  # Replace with your ngrok authtoken
 
       - name: Start ngrok
-        run: ngrok http 5085 &  # Exposes API through ngrok
+        run: |
+          nohup ./ngrok http 5085 > ngrok.log 2>&1 &
 
       - name: Verify API is Running
         run: |
-          sleep 10  # Wait for the API to fully start
-          curl -X GET "http://localhost:5085/api/database"  # Calls the API to verify it's running
+          sleep 30  # Wait longer for the API to fully start
+          curl -X GET "http://localhost:5085/api/database" || exit 1
 
       - name: Insert Sample User
         run: |
           curl -X POST "http://localhost:5085/api/database" \
             -H "Content-Type: application/json" \
-            -d '{"name":"John","surname":"Doe","email":"john@example.com"}'
+            -d '{"name":"John","surname":"Doe","email":"john@example.com"}' || exit 1
+
+      - name: Stop API and ngrok
+        run: |
+          pkill -f "dotnet run"
+          pkill -f "ngrok http"
