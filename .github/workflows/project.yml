@@ -38,7 +38,7 @@ jobs:
           unzip ngrok.zip
           rm ngrok.zip
           chmod +x ngrok
-          ./ngrok authtoken YOUR_NGROK_AUTHTOKEN  # Replace with your ngrok authtoken
+          ./ngrok authtoken 2u0MGA1x5PgLMeIwSZWUeK7absI_7nTtDxDTiS16KZsugZ31v  # Replace with your ngrok authtoken
 
       - name: Start ngrok
         run: |
