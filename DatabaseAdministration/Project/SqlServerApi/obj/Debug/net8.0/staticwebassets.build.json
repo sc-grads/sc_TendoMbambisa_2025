@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "XLjvi+rAziTlXJImLSR0cMhbEBguFqJawOPPAH+x9LM=",
+  "Source": "SqlServerApi",
+  "BasePath": "_content/SqlServerApi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
