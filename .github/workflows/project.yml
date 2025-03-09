@@ -27,17 +27,13 @@ jobs:
         working-directory: DatabaseAdministration/Project/SqlServerApi
         run: dotnet build --no-restore  # Builds the project
 
-      - name: Run API (Background)
+      - name: List Working Directory
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: nohup dotnet run > api.log 2>&1 &  # Starts API in the background
+        run: ls -la  # List files to verify the working directory
 
-      - name: Check API Logs
-        run: cat api.log  # Print API logs to debug startup issues
-
-      - name: Verify Database Connection
-        run: |
-          echo "Testing database connection..."
-          sqlcmd -S SAMBE2025018 -d AutoTestDB -U github_user1 -P YOUR_PASSWORD -Q "SELECT 1" || exit 1
+      - name: Run API (Foreground)
+        working-directory: DatabaseAdministration/Project/SqlServerApi
+        run: dotnet run  # Run API in the foreground to see logs
 
       - name: Install ngrok
         run: |
