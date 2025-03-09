@@ -33,7 +33,7 @@ jobs:
 
       - name: Run API (Foreground)
         working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet run  # Run API in the foreground to see logs
+        run: dotnet watch run  # Run API in the foreground to see logs
 
       - name: Install ngrok
         run: |
