@@ -5178,11 +5178,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Tendo Mbambisa\\SqlServerApi\\SqlServerApi.csproj",
+      "projectUniqueName": "C:\\sc_TendoMbambisa_2025\\DatabaseAdministration\\Project\\SqlServerApi\\SqlServerApi.csproj",
       "projectName": "SqlServerApi",
-      "projectPath": "C:\\Users\\Tendo Mbambisa\\SqlServerApi\\SqlServerApi.csproj",
+      "projectPath": "C:\\sc_TendoMbambisa_2025\\DatabaseAdministration\\Project\\SqlServerApi\\SqlServerApi.csproj",
       "packagesPath": "C:\\Users\\Tendo Mbambisa\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Tendo Mbambisa\\SqlServerApi\\obj\\",
+      "outputPath": "C:\\sc_TendoMbambisa_2025\\DatabaseAdministration\\Project\\SqlServerApi\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Tendo Mbambisa\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -5252,7 +5252,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.406/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.407/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

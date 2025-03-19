@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "c8+AF6vNJnE=",
+  "dgSpecHash": "z4slDphSH9k=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Tendo Mbambisa\\SqlServerApi\\SqlServerApi.csproj",
+  "projectFilePath": "C:\\sc_TendoMbambisa_2025\\DatabaseAdministration\\Project\\SqlServerApi\\SqlServerApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Tendo Mbambisa\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Tendo Mbambisa\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
