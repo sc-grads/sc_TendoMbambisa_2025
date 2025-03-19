@@ -23,8 +23,8 @@ jobs:
           PR_URL="${{ github.event.pull_request.html_url }}"
           PR_DESCRIPTION="${{ github.event.pull_request.body }}"
 
-          MESSAGE="New Pull Request: **'$PR_TITLE'** by **'$PR_USER'**.\n
-          🔗 **Review here:** [$PR_URL]($PR_URL)\n\n"
+          MESSAGE="New Pull Request: **'$PR_TITLE'** by **'$PR_USER'**.\n\n"
+          MESSAGE+="🔗 **Review here:** [$PR_URL]($PR_URL)\n\n"
 
           if [[ -n "$PR_DESCRIPTION" ]]; then
             MESSAGE+="📝 **Description:** $PR_DESCRIPTION\n\n"
@@ -42,7 +42,12 @@ jobs:
             MESSAGE+="🗑️ **Files Deleted:** $DELETED_FILES\n"
           fi
 
-          echo "MESSAGE=$MESSAGE" >> $GITHUB_ENV
+          # Use EOF to correctly assign multiline values
+          {
+            echo "MESSAGE<<EOF"
+            echo "$MESSAGE"
+            echo "EOF"
+          } >> $GITHUB_ENV
 
       - name: Send Notification to Teams
         run: |
