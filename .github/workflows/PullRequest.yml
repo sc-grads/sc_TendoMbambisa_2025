@@ -7,8 +7,18 @@ jobs:
   notify_teams:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Changed Files
+        id: changed_files
+        run: |
+          CHANGED_FILES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "${{ github.event.pull_request.url }}/files" | jq -r '.[].filename' | paste -sd ", ")
+          echo "FILES_CHANGED=$CHANGED_FILES" >> $GITHUB_ENV
+
       - name: Send Notification to Teams
         run: |
           curl -H "Content-Type: application/json" -d "{
-            \"text\": \"New Pull Request: '${{ github.event.pull_request.title }}' by '${{ github.event.pull_request.user.login }}'. Review here: '${{ github.event.pull_request.html_url }}'\"
+            \"text\": \"New Pull Request: '${{ github.event.pull_request.title }}' by '${{ github.event.pull_request.user.login }}'.\n
+            Review here: '${{ github.event.pull_request.html_url }}'\n
+            Files Changed: '${{ env.FILES_CHANGED }}'\"
           }" "https://northerndata.webhook.office.com/webhookb2/0e8a6750-d437-43ad-bbed-54081be47e82@174c7352-9c5c-4558-b848-be140b444e7d/IncomingWebhook/4ef5202394ad4526b10205b0fe43c8a6/6acd2e93-9d80-4d4b-8481-695c39e6b878/V2YQXCJDEMEG9arYvJcOr2zX49FEqxKco0Tlc6uPibm9U1"
