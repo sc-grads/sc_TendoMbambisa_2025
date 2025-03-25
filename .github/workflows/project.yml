@@ -9,7 +9,7 @@ on:
 jobs:
   install-sql-client:
     name: Install SQL Server Client
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -19,22 +19,22 @@ jobs:
           # Install prerequisites
           sudo apt-get update
           sudo apt-get install -y curl gnupg
-    
-          # Add Microsoft GPG key (new method without apt-key)
+          
+          # Add Microsoft GPG key (modern method)
           curl -sSL https://packages.microsoft.com/keys/microsoft.asc > microsoft.asc
           sudo install -D -o root -g root -m 644 microsoft.asc /usr/share/keyrings/microsoft-archive-keyring.gpg
           rm microsoft.asc
-    
-          # Add the correct repository (updated for Ubuntu 20.04/22.04)
+          
+          # Add repository (works for both 20.04 and 22.04)
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
-    
+          
           # Install packages
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 unixodbc-dev
-    
+          
           # Add to PATH
-          echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
-          source ~/.bashrc
+          echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> $GITHUB_ENV
+          echo "::add-path::/opt/mssql-tools18/bin"
 
   create-database:
     name: Connect and Create Database
