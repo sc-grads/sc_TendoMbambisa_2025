@@ -16,13 +16,12 @@ jobs:
 
       - name: Install SQL Server Client
         run: |
-          sudo curl -s https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          sudo add-apt-repository "$(curl -s https://packages.microsoft.com/config/ubuntu/20.04/prod.list)"
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo curl -o /etc/apt/sources.list.d/mssql-release.list https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/mssql-server-2019.list
           sudo apt-get update
-          sudo apt-get install -y mssql-tools unixodbc-dev
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools unixodbc-dev
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
-        shell: bash
 
       - name: Connect and Create Database
         env:
@@ -30,7 +29,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -Q "CREATE DATABASE AutoTestdb;"
-
+      
       - name: Create User Table
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
@@ -43,7 +42,7 @@ jobs:
               Surname NVARCHAR(50),
               Email NVARCHAR(100) UNIQUE
           );"
-
+      
       - name: Create Stored Procedure
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
@@ -59,7 +58,7 @@ jobs:
               INSERT INTO [dbo].[user] (Name, Surname, Email)
               VALUES (@Name, @Surname, @Email);
           END;"
-
+      
       - name: Insert Sample Data
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
