@@ -20,21 +20,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl gnupg
           
+          # Clean up any existing Microsoft repository configurations
+          sudo rm -f /etc/apt/sources.list.d/mssql-release.list
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo rm -f /usr/share/keyrings/microsoft-prod.gpg
+          
           # Add Microsoft GPG key (modern method)
           curl -sSL https://packages.microsoft.com/keys/microsoft.asc > microsoft.asc
           sudo install -D -o root -g root -m 644 microsoft.asc /usr/share/keyrings/microsoft-archive-keyring.gpg
           rm microsoft.asc
           
-          # Add repository (works for both 20.04 and 22.04)
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/ubuntu/$(lsb_release -rs)/prod $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          # Add repository for Ubuntu 24.04 (Noble)
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           
           # Install packages
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 unixodbc-dev
           
           # Add to PATH
-          echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> $GITHUB_ENV
-          echo "::add-path::/opt/mssql-tools18/bin"
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
   create-database:
     name: Connect and Create Database
