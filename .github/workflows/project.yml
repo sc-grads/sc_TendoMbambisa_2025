@@ -48,6 +48,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Install sqlcmd in current job
+        run: |
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
+
       - name: Create Database
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
@@ -62,6 +68,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        
+      - name: Install sqlcmd in current job
+        run: |
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
       - name: Create Table
         env:
@@ -83,6 +95,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+        
+      - name: Install sqlcmd in current job
+        run: |
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
       - name: Create Procedure
         env:
@@ -107,6 +125,12 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Install sqlcmd in current job
+        run: |
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
+          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
       - name: Insert Data
         env:
