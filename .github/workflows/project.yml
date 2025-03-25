@@ -7,9 +7,9 @@ on:
   #     - main
 
 jobs:
-  setup-database:
+  install-sql-client:
+    name: Install SQL Server Client
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -23,14 +23,30 @@ jobs:
           echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
           source ~/.bashrc
 
-      - name: Connect and Create Database
+  create-database:
+    name: Connect and Create Database
+    runs-on: ubuntu-latest
+    needs: install-sql-client
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Create Database
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -Q "CREATE DATABASE AutoTestdb;"
-      
-      - name: Create User Table
+
+  create-user-table:
+    name: Create User Table
+    runs-on: ubuntu-latest
+    needs: create-database
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Create Table
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -42,8 +58,16 @@ jobs:
               Surname NVARCHAR(50),
               Email NVARCHAR(100) UNIQUE
           );"
-      
-      - name: Create Stored Procedure
+
+  create-stored-procedure:
+    name: Create Stored Procedure
+    runs-on: ubuntu-latest
+    needs: create-user-table
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Create Procedure
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -58,8 +82,16 @@ jobs:
               INSERT INTO [dbo].[user] (Name, Surname, Email)
               VALUES (@Name, @Surname, @Email);
           END;"
-      
-      - name: Insert Sample Data
+
+  insert-sample-data:
+    name: Insert Sample Data
+    runs-on: ubuntu-latest
+    needs: create-stored-procedure
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Insert Data
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
