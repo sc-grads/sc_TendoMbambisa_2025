@@ -9,7 +9,7 @@ on:
 jobs:
   install-sql-client:
     name: Install SQL Server Client
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
