@@ -59,6 +59,13 @@ jobs:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
+          cat <<EOF > odbc.ini
+          [ODBC]
+          Encrypt=Yes
+          TrustServerCertificate=Yes
+          EOF
+
+          export ODBCSYSINI=$(pwd)
           sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -Q "CREATE DATABASE AutoTestdb;" || exit 1
 
   create-user-table:
