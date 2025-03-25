@@ -1,65 +1,61 @@
 name: AutoTest Database Automation
 
 on:
-  workflow_dispatch:  # Allows manual trigger from GitHub Actions
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Runs on Ubuntu
+  setup-database:
+    runs-on: ubuntu-latest
 
-    env:
-      CONNECTION_STRING: "Server=SAMBE2025018;Database=AutoTestDB;User Id=github_user1;Password=StrongPassword;TrustServerCertificate=true"  # Hardcoded connection string
-      API_PORT: 5085
-   
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # Pulls the latest code
+        uses: actions/checkout@v3
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'  # Using .NET 8
+      - name: Install SQL Server Client
+        run: sudo apt-get install -y mssql-tools unixodbc-dev
 
-      - name: Restore Dependencies
-        working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet restore  # Restores dependencies
-
-      - name: Build API
-        working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet build --no-restore  # Builds the project
-
-      - name: List Working Directory
-        working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: ls -la  # List files to verify the working directory
-
-      - name: Run API (Background)
-        working-directory: DatabaseAdministration/Project/SqlServerApi
-        run: dotnet run --no-build > api.log 2>&1 &  # Run API in the background and log output
-
-      - name: Install ngrok
+      - name: Connect and Create Database
+        env:
+          PINGGY_URL: ${{ secrets.PINGGY_URL }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
-          unzip ngrok.zip
-          rm ngrok.zip
-          chmod +x ngrok
-          echo "2u0MGA1x5PgLMeIwSZWUeK7absI_7nTtDxDTiS16KZsugZ31v" | base64 --decode | ./ngrok authtoken
+          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -Q "CREATE DATABASE AutoTestdb;"
 
-      - name: Start ngrok
+      - name: Create User Table
+        env:
+          PINGGY_URL: ${{ secrets.PINGGY_URL }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          nohup ./ngrok http $API_PORT > ngrok.log 2>&1 &
+          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -d AutoTestdb -Q "
+          CREATE TABLE [dbo].[user] (
+              ID INT IDENTITY(1,1) PRIMARY KEY,
+              Name NVARCHAR(50),
+              Surname NVARCHAR(50),
+              Email NVARCHAR(100) UNIQUE
+          );"
 
-      - name: Verify API is Running
+      - name: Create Stored Procedure
+        env:
+          PINGGY_URL: ${{ secrets.PINGGY_URL }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          sleep 30  # Wait longer for the API to fully start
-          curl -X GET "http://localhost:$API_PORT/api/database" || exit 1
+          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -d AutoTestdb -Q "
+          CREATE PROCEDURE InsertUserData
+              @Name NVARCHAR(50),
+              @Surname NVARCHAR(50),
+              @Email NVARCHAR(100)
+          AS
+          BEGIN
+              INSERT INTO [dbo].[user] (Name, Surname, Email)
+              VALUES (@Name, @Surname, @Email);
+          END;"
 
-      - name: Insert Sample User
+      - name: Insert Sample Data
+        env:
+          PINGGY_URL: ${{ secrets.PINGGY_URL }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          curl -X POST "http://localhost:$API_PORT/api/database" \
-            -H "Content-Type: application/json" \
-            -d '{"name":"John","surname":"Doe","email":"john@example.com"}' || exit 1
-
-      - name: Stop API and ngrok
-        run: |
-          pkill -f "dotnet run"
-          pkill -f "ngrok http"
+          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -d AutoTestdb -Q "
+          EXEC InsertUserData 'John', 'Doe', 'john.doe@example.com';"
