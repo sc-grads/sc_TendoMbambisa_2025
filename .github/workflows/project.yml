@@ -22,13 +22,19 @@ jobs:
           # Install prerequisites
           sudo apt-get install -y curl gnupg unixodbc-dev
           
+          # Clean up any existing Microsoft repository configurations and keys
+          sudo rm -f /etc/apt/sources.list.d/mssql-release.list
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+          sudo rm -f /usr/share/keyrings/microsoft-prod.gpg
+          sudo rm -f /usr/share/keyrings/microsoft-archive-keyring.gpg
+          
           # Add Microsoft GPG key
           curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /usr/share/keyrings/microsoft-archive-keyring.gpg > /dev/null
           
           # Add repository for Ubuntu 24.04
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           
-          # Install SQL Server tools
+          # Update package list again and install SQL Server tools
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
           
