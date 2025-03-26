@@ -41,7 +41,7 @@ jobs:
           # Add sqlcmd to PATH
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
-      - name: Create Database
+      - name: Test and Setup Database
         env:
           PINGGY_HOST: "rnonc-41-145-197-133.a.free.pinggy.link"
           PINGGY_PORT: "45297"
@@ -50,23 +50,28 @@ jobs:
         run: |
           # Test connection
           echo "Testing database connection..."
-          sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" -Q "SELECT 1" -N -C -b || {
-            echo "Connection failed!"
+          sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" -Q "SELECT 1" -N -C -b -o connect.log
+          if [ $? -ne 0 ]; then
+            echo "::error::Connection test failed!"
+            cat connect.log
             exit 1
-          }
+          fi
+          echo "✅ Connection test successful!"
+          cat connect.log
           
-          # Execute setup script
+          # Execute setup script with detailed error output
+          echo "Running database setup script..."
           sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -N -C \
             -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
-            -b -o output.log -V 16 -y 1000
+            -b -o output.log -e -V 16 -y 1000
           
           # Check execution result
           if [ $? -eq 0 ]; then
             echo "✅ Database setup completed successfully!"
             cat output.log
           else
-            echo "::error::Database setup failed"
+            echo "::error::Database setup failed with exit code $?"
             cat output.log
             exit 1
           fi
