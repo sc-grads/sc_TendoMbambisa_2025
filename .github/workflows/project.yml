@@ -54,8 +54,8 @@ jobs:
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
       - name: Create Database
         env:
-          PINGGY_HOST: "rnlja-41-150-37-133.a.free.pinggy.link"
-          PINGGY_PORT: "39145"
+          PINGGY_HOST: "rnonc-41-145-197-133.a.free.pinggy.link"
+          PINGGY_PORT: "45297"
           # ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
