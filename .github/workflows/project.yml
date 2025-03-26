@@ -61,8 +61,8 @@ jobs:
 
       - name: Setup Database
         env:
-          PINGGY_HOST: "rnonc-41-145-197-133.a.free.pinggy.link"
-          PINGGY_PORT: "45297"
+          PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
+          PINGGY_PORT: ${{ secrets.PINGGY_PORT }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
         run: |
