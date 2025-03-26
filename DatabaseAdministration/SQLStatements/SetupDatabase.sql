@@ -1,10 +1,10 @@
 -- Create the database if it doesn't exist
 IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = 'Autotestdb')
-CREATE DATABASE Autotestdb;
+CREATE DATABASE Autotest;
 GO
 
 -- Use the database
-USE Autotestdb;
+USE Autotest;
 GO
 
 -- Create the user table if it doesn't exist
