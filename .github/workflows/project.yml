@@ -61,17 +61,20 @@ jobs:
           
           # Execute setup script with detailed error output
           echo "Running database setup script..."
+          set +e  # Temporarily disable exit-on-error to capture output
           sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -N -C \
             -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
             -b -o output.log -e -V 16 -y 1000
+          EXIT_CODE=$?
+          set -e  # Re-enable exit-on-error
           
           # Check execution result
-          if [ $? -eq 0 ]; then
+          if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ Database setup completed successfully!"
             cat output.log
           else
-            echo "::error::Database setup failed with exit code $?"
+            echo "::error::Database setup failed with exit code $EXIT_CODE"
             cat output.log
             exit 1
           fi
