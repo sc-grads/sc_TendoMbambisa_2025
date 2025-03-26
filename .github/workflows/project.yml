@@ -56,8 +56,8 @@ jobs:
 
       - name: Create Database
         env:
-          PINGGY_HOST: ${{ secrets.PINGGY_HOST}}
-          PINGGY_PORT: ${{secrets.PINGGY_PORT}}
+          PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
+          PINGGY_PORT: ${{ secrets.PINGGY_PORT }}
           # ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
