@@ -41,7 +41,7 @@ jobs:
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
   create-database:
-    name: Connect and Create Database
+    name: Connect and Setup Database
     runs-on: ubuntu-latest
     needs: install-sql-client
     steps:
@@ -58,91 +58,9 @@ jobs:
         env:
           PINGGY_URL: ${{ secrets.PINGGY_URL }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SQL_USER: ${{ secrets.SQL_USER }}
+          SQL_PORT: ${{ secrets.SQL_PORT }}
         run: |
-          cat <<EOF > odbc.ini
-          [ODBC]
-          Encrypt=Yes
-          TrustServerCertificate=Yes
-          EOF
+          mysql -h $SQL_HOST -P $SQL_PORT -u $SQL_USER -p$DB_PASSWORD < ./setup_database.sql
 
-          export ODBCSYSINI=$(pwd)
-          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -Q "CREATE DATABASE AutoTestdb;" || exit 1
-
-  create-user-table:
-    name: Create User Table
-    runs-on: ubuntu-latest
-    needs: create-database
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        
-      - name: Install sqlcmd in current job
-        run: |
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
-          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
-
-      - name: Create Table
-        env:
-          PINGGY_URL: ${{ secrets.PINGGY_URL }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: |
-          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -d AutoTestdb -Q "
-          CREATE TABLE [dbo].[user] (
-              ID INT IDENTITY(1,1) PRIMARY KEY,
-              Name NVARCHAR(50),
-              Surname NVARCHAR(50),
-              Email NVARCHAR(100) UNIQUE
-          );" || exit 1
-
-  create-stored-procedure:
-    name: Create Stored Procedure
-    runs-on: ubuntu-latest
-    needs: create-user-table
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        
-      - name: Install sqlcmd in current job
-        run: |
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
-          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
-
-      - name: Create Procedure
-        env:
-          PINGGY_URL: ${{ secrets.PINGGY_URL }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: |
-          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -d AutoTestdb -Q "
-          CREATE PROCEDURE InsertUserData
-              @Name NVARCHAR(50),
-              @Surname NVARCHAR(50),
-              @Email NVARCHAR(100)
-          AS
-          BEGIN
-              INSERT INTO [dbo].[user] (Name, Surname, Email)
-              VALUES (@Name, @Surname, @Email);
-          END;" || exit 1
-
-  insert-sample-data:
-    name: Insert Sample Data
-    runs-on: ubuntu-latest
-    needs: create-stored-procedure
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Install sqlcmd in current job
-        run: |
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools18
-          echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
-
-      - name: Insert Data
-        env:
-          PINGGY_URL: ${{ secrets.PINGGY_URL }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: |
-          sqlcmd -S "$PINGGY_URL" -U Auto_user -P "$DB_PASSWORD" -d AutoTestdb -Q "
-          EXEC InsertUserData 'John', 'Doe', 'john.doe@example.com';" || exit 1
+  
