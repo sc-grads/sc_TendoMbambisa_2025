@@ -61,23 +61,12 @@ jobs:
           SQL_USER: ${{ secrets.SQL_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          # Test connection (with SSL bypass for testing)
-          /opt/mssql-tools18/bin/sqlcmd \
-            -N -C \  # Bypass certificate validation
-            -S "$PINGGY_HOST,$PINGGY_PORT" \
-            -U "$SQL_USER" \
-            -P "$DB_PASSWORD" \
-            -Q "SELECT 1" -b -o connect.log || (cat connect.log && exit 1)
-
+          # Test connection with SSL bypass for testing
+          /opt/mssql-tools18/bin/sqlcmd -N -C -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" -Q "SELECT 1" -b -o connect.log || (cat connect.log && exit 1)
+          
           # Run setup script
-          /opt/mssql-tools18/bin/sqlcmd \
-            -N -C \
-            -S "$PINGGY_HOST,$PINGGY_PORT" \
-            -U "$SQL_USER" \
-            -P "$DB_PASSWORD" \
-            -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
-            -b -o output.log -V 16 -y 1000
-
+          /opt/mssql-tools18/bin/sqlcmd -N -C -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" -b -o output.log -V 16 -y 1000
+          
           # Check results
           if [ $? -eq 0 ]; then
             echo "✅ Database setup completed!"
