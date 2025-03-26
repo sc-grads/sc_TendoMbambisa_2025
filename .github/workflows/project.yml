@@ -63,13 +63,28 @@ jobs:
           SQL_USER: ${{ secrets.SQL_USER }}
           
         run: |
-          # Test connection first
-          echo "Testing connection to $PINGGY_HOST,$PINGGY_PORT..."
-          nc -zv $PINGGY_HOST $PINGGY_PORT || echo "::error::Pinggy tunnel unreachable"
-            
-          # Execute setup script
           /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
-          -Q "SELECT 1" -b -o connect.log || (cat connect.log && exit 1)
+          -N -C \
+          -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
+          -b -o output.log -V 16 -y 1000
+
+          # Verify success
+          if [ $? -eq 0 ]; then
+          echo "✅ Database setup completed!"
+          cat output.log
+          else
+            echo "::error::SQL script failed"
+            cat output.log
+            exit 1
+          fi
+          
+          # # Test connection first
+          # echo "Testing connection to $PINGGY_HOST,$PINGGY_PORT..."
+          # nc -zv $PINGGY_HOST $PINGGY_PORT || echo "::error::Pinggy tunnel unreachable"
+            
+          # # Execute setup script
+          # /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
+          # -Q "SELECT 1" -b -o connect.log || (cat connect.log && exit 1)
 
           echo "✅ Connection successful!"
           # /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_URL" -U "$SQL_USER" -P "$DB_PASSWORD" \
