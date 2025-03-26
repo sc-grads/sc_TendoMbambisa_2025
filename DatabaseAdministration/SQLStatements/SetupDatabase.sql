@@ -5,11 +5,12 @@ CREATE DATABASE IF NOT EXISTS Autotestdb;
 USE Autotestdb;
 
 -- Create the user table with three fields
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS [user] (
+    ID INT IDENTITY(1,1) NOT NULL,
     Name VARCHAR(50) NOT NULL,
     Surname VARCHAR(50) NOT NULL,
     Email VARCHAR(100) NOT NULL,
-    PRIMARY KEY (Email)  -- Adding a primary key is recommended
+    PRIMARY KEY (ID)
 );
 
 -- Create stored procedure for inserting data
