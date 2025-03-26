@@ -44,13 +44,12 @@ jobs:
       - name: Test Database Connection
         env:
           PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
-          PINGGY_PORT: ${{ secrets.PINGGY_PORT }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
         run: |
           # Test connection
           echo "Testing database connection..."
-          sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" -Q "SELECT 1" -N -C -b -o connect.log
+          sqlcmd -S "$PINGGY_HOST" -U "$SQL_USER" -P "$DB_PASSWORD" -Q "SELECT 1" -N -C -b -o connect.log
           if [ $? -ne 0 ]; then
             echo "::error::Connection test failed!"
             cat connect.log
@@ -62,14 +61,13 @@ jobs:
       - name: Setup Database
         env:
           PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
-          PINGGY_PORT: ${{ secrets.PINGGY_PORT }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
         run: |
           # Execute setup script with detailed error output
           echo "Running database setup script..."
           set +e  # Temporarily disable exit-on-error to capture output
-          sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
+          sqlcmd -S "$PINGGY_HOST" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -N -C \
             -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
             -b -o output.log -e -V 16 -y 1000
