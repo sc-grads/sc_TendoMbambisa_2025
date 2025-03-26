@@ -41,7 +41,7 @@ jobs:
           # Add sqlcmd to PATH
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
-      - name: Test and Setup Database
+      - name: Test Database Connection
         env:
           PINGGY_HOST: "rnonc-41-145-197-133.a.free.pinggy.link"
           PINGGY_PORT: "45297"
@@ -58,7 +58,14 @@ jobs:
           fi
           echo "✅ Connection test successful!"
           cat connect.log
-          
+
+      - name: Setup Database
+        env:
+          PINGGY_HOST: "rnonc-41-145-197-133.a.free.pinggy.link"
+          PINGGY_PORT: "45297"
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SQL_USER: ${{ secrets.SQL_USER }}
+        run: |
           # Execute setup script with detailed error output
           echo "Running database setup script..."
           set +e  # Temporarily disable exit-on-error to capture output
