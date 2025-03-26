@@ -56,22 +56,27 @@ jobs:
 
       - name: Create Database
         env:
-          PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
-          PINGGY_PORT: ${{ secrets.PINGGY_PORT }}
-          # ${{ secrets.PINGGY_URL }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SQL_USER: ${{ secrets.SQL_USER }}
+           PINGGY_HOST: ${{ secrets.PINGGY_HOST }}  # From secrets
+           PINGGY_PORT: ${{ secrets.PINGGY_PORT }}  # From secrets
+           SQL_USER: ${{ secrets.SQL_USER }}
+           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           
         run: |
+          # Test connection (with SSL bypass for testing)
+          /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
+          -N -C \  # Bypass certificate validation
+          -Q "SELECT 1" -b -o connect.log || (cat connect.log && exit 1)
+
+          # Run setup script
           /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_HOST,$PINGGY_PORT" -U "$SQL_USER" -P "$DB_PASSWORD" \
           -N -C \
           -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
           -b -o output.log -V 16 -y 1000
 
-          # Verify success
+           # Check results
           if [ $? -eq 0 ]; then
-          echo "✅ Database setup completed!"
-          cat output.log
+            echo "✅ Database setup completed!"
+            cat output.log
           else
             echo "::error::SQL script failed"
             cat output.log
