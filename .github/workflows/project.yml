@@ -62,9 +62,9 @@ jobs:
           
         run: |
           # Test connection first
-          /opt/mssql-tools18/bin/sqlcmd -S "$PINGGT_URL" -U "$SQL_USER" -P "$SQL_PASSWORD" \
+          /opt/mssql-tools18/bin/sqlcmd -S "$PINGGT_URL" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -Q "SELECT 'Connection successful' AS Result" -b -o connect.log || (cat connect.log && exit 1)
             
           # Execute setup script
-          /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_URL" -U "$SQL_USER" -P "$SQL_PASSWORD" \
+          /opt/mssql-tools18/bin/sqlcmd -S "$PINGGY_URL" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" -b -o output.log -V 16 -y 1000 || (cat output.log && exit 1)
