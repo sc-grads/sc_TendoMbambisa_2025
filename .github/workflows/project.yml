@@ -2,6 +2,9 @@ name: AutoTest Database Automation
 
 on:
   workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
 
 jobs:
   setup-sql-dev:
@@ -13,19 +16,30 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Cache SQL Server Tools
-        id: cache-sql-tools
+      - name: Cache APT packages
         uses: actions/cache@v3
+        id: cache-apt
+        with:
+          path: |
+            /var/cache/apt
+            /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/Install SQL Server Client') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Cache SQL Server Tools
+        uses: actions/cache@v3
+        id: cache-sql-tools
         with:
           path: |
             /opt/mssql-tools18
             /usr/lib/x86_64-linux-gnu/libmsodbcsql-18*
-          key: ${{ runner.os }}-sql-tools-${{ hashFiles('**/install-sql-tools.sh') }}
+          key: ${{ runner.os }}-sql-tools-${{ hashFiles('**/Install SQL Server Client') }}
           restore-keys: |
             ${{ runner.os }}-sql-tools-
 
       - name: Install SQL Server Client
-        if: steps.cache-sql-tools.outputs.cache-hit != 'true'
+        if: steps.cache-apt.outputs.cache-hit != 'true' || steps.cache-sql-tools.outputs.cache-hit != 'true'
         run: |
           # Update package list
           sudo apt-get update
@@ -48,9 +62,7 @@ jobs:
           # Update package list again and install SQL Server tools
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
-
-      - name: Configure SQL Tools Path
-        run: |
+          
           # Add sqlcmd to PATH
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
@@ -106,19 +118,30 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Cache SQL Server Tools
-        id: cache-sql-tools
+      - name: Cache APT packages
         uses: actions/cache@v3
+        id: cache-apt
+        with:
+          path: |
+            /var/cache/apt
+            /var/lib/apt/lists
+          key: ${{ runner.os }}-apt-${{ hashFiles('**/Install SQL Server Client') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Cache SQL Server Tools
+        uses: actions/cache@v3
+        id: cache-sql-tools
         with:
           path: |
             /opt/mssql-tools18
             /usr/lib/x86_64-linux-gnu/libmsodbcsql-18*
-          key: ${{ runner.os }}-sql-tools-${{ hashFiles('**/install-sql-tools.sh') }}
+          key: ${{ runner.os }}-sql-tools-${{ hashFiles('**/Install SQL Server Client') }}
           restore-keys: |
             ${{ runner.os }}-sql-tools-
 
       - name: Install SQL Server Client
-        if: steps.cache-sql-tools.outputs.cache-hit != 'true'
+        if: steps.cache-apt.outputs.cache-hit != 'true' || steps.cache-sql-tools.outputs.cache-hit != 'true'
         run: |
           # Update package list
           sudo apt-get update
@@ -141,9 +164,7 @@ jobs:
           # Update package list again and install SQL Server tools
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
-
-      - name: Configure SQL Tools Path
-        run: |
+          
           # Add sqlcmd to PATH
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
