@@ -2,9 +2,6 @@ name: AutoTest Database Automation
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
 
 jobs:
   setup-sql-dev:
@@ -16,7 +13,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Cache SQL Server Tools
+        id: cache-sql-tools
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/mssql-tools18
+            /usr/lib/x86_64-linux-gnu/libmsodbcsql-18*
+          key: ${{ runner.os }}-sql-tools-${{ hashFiles('**/install-sql-tools.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-sql-tools-
+
       - name: Install SQL Server Client
+        if: steps.cache-sql-tools.outputs.cache-hit != 'true'
         run: |
           # Update package list
           sudo apt-get update
@@ -39,7 +48,9 @@ jobs:
           # Update package list again and install SQL Server tools
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
-          
+
+      - name: Configure SQL Tools Path
+        run: |
           # Add sqlcmd to PATH
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
@@ -68,15 +79,14 @@ jobs:
         run: |
           # Execute setup script with detailed error output
           echo "Running database setup script for development..."
-          set +e  # Temporarily disable exit-on-error to capture output
+          set +e
           sqlcmd -S "$PINGGY_HOST" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -N -C \
             -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
             -b -o output.log -e -V 16 -y 1000
           EXIT_CODE=$?
-          set -e  # Re-enable exit-on-error
+          set -e
           
-          # Check execution result
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ Development database setup completed successfully!"
             cat output.log
@@ -89,14 +99,26 @@ jobs:
   setup-sql-prod:
     name: Setup SQL Server Environment (Production)
     runs-on: ubuntu-latest
-    needs: setup-sql-dev  # Ensures dev job completes first
+    needs: setup-sql-dev
     environment:
       name: Production
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Cache SQL Server Tools
+        id: cache-sql-tools
+        uses: actions/cache@v3
+        with:
+          path: |
+            /opt/mssql-tools18
+            /usr/lib/x86_64-linux-gnu/libmsodbcsql-18*
+          key: ${{ runner.os }}-sql-tools-${{ hashFiles('**/install-sql-tools.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-sql-tools-
+
       - name: Install SQL Server Client
+        if: steps.cache-sql-tools.outputs.cache-hit != 'true'
         run: |
           # Update package list
           sudo apt-get update
@@ -119,7 +141,9 @@ jobs:
           # Update package list again and install SQL Server tools
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
-          
+
+      - name: Configure SQL Tools Path
+        run: |
           # Add sqlcmd to PATH
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
 
@@ -148,15 +172,14 @@ jobs:
         run: |
           # Execute setup script with detailed error output
           echo "Running database setup script for production..."
-          set +e  # Temporarily disable exit-on-error to capture output
+          set +e
           sqlcmd -S "$PINGGY_HOST" -U "$SQL_USER" -P "$DB_PASSWORD" \
             -N -C \
             -i "./DatabaseAdministration/SQLStatements/SetupDatabase.sql" \
             -b -o output.log -e -V 16 -y 1000
           EXIT_CODE=$?
-          set -e  # Re-enable exit-on-error
+          set -e
           
-          # Check execution result
           if [ $EXIT_CODE -eq 0 ]; then
             echo "✅ Production database setup completed successfully!"
             cat output.log
