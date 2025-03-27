@@ -45,7 +45,7 @@ jobs:
 
       - name: Test Database Connection (Development)
         env:
-          PINGGY_HOST: ${{ secrets.DEV_PINGGY_HOST }}
+          PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
         run: |
@@ -62,7 +62,7 @@ jobs:
 
       - name: Setup Database (Development)
         env:
-          PINGGY_HOST: ${{ secrets.DEV_PINGGY_HOST }}
+          PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SQL_USER: ${{ secrets.SQL_USER }}
         run: |
@@ -126,8 +126,8 @@ jobs:
       - name: Test Database Connection (Production)
         env:
           PINGGY_HOST: ${{ secrets.PROD_PINGGY_HOST }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SQL_USER: ${{ secrets.SQL_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          SQL_USER: ${{ secrets.PRO_SQL_USER }}
         run: |
           # Test connection
           echo "Testing production database connection..."
@@ -143,8 +143,8 @@ jobs:
       - name: Setup Database (Production)
         env:
           PINGGY_HOST: ${{ secrets.PROD_PINGGY_HOST }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SQL_USER: ${{ secrets.SQL_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          SQL_USER: ${{ secrets.PRO_SQL_USER }}
         run: |
           # Execute setup script with detailed error output
           echo "Running database setup script for production..."
