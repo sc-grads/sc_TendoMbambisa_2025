@@ -4,7 +4,7 @@ CREATE DATABASE AutoTendo;
 GO
 
 -- Use the database
-USE Autotest;
+USE AutoTendo;
 GO
 
 -- Create the user table if it doesn't exist
