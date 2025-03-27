@@ -1,6 +1,6 @@
 -- Create the database if it doesn't exist
 IF NOT EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = 'Autotestdb')
-CREATE DATABASE Autotest;
+CREATE DATABASE AutoTM;
 GO
 
 -- Use the database
