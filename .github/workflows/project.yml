@@ -125,7 +125,7 @@ jobs:
 
       - name: Test Database Connection (Production)
         env:
-          PINGGY_HOST: ${{ secrets.PROD_PINGGY_HOST }}
+          PINGGY_HOST: ${{ secrets.DEV_PINGGY_HOST }}
           DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
           SQL_USER: ${{ secrets.PRO_SQL_USER }}
         run: |
