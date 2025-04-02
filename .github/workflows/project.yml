@@ -6,7 +6,7 @@ on:
 jobs:
   setup-sql-dev:
     name: Development
-    uses: ./.github/workflows/automation.yml
+    uses: ./.github/workflows/automationTemplate.yml
     with:
       environment_name: Development
     secrets:
@@ -17,7 +17,7 @@ jobs:
   setup-sql-prod:
     name: Production
     needs: setup-sql-dev  # Ensure Production runs only if Development succeeds
-    uses: ./.github/workflows/automation.yml
+    uses: ./.github/workflows/automationTemplate.yml
     with:
       environment_name: Production
     secrets:
