@@ -51,32 +51,28 @@ jobs:
         run: |
           set -e
           echo "Installing SQL Server Client..."
-
-          # Remove any existing Microsoft repository list
-          sudo rm -f /etc/apt/sources.list.d/mssql-release.list
-
-          # Remove conflicting key files
-          sudo rm -f /usr/share/keyrings/microsoft-prod.gpg
-          sudo rm -f /usr/share/keyrings/microsoft-archive-keyring.gpg
-          
-          #install prerequisities
           sudo apt-get update && sudo apt-get install -y curl gnupg unixodbc-dev
 
-          # Add Microsoft signing key
-          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /usr/share/keyrings/microsoft-archive-keyring.gpg > /dev/null
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          if [ $? -ne 0 ]; then
+            echo "Failed to add Microsoft key"
+            exit 1
+          fi
 
-          #Add Microsoft repository using the correct key file
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
-
-          #Update package lists again
+          echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/22.04/prod jammy main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
-
-          #Install SQL Server ODBC Driver and tools
+          if [ $? -ne 0 ]; then
+            echo "Failed to update package lists"
+            exit 1
+          fi
+          
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
+          if [ $? -ne 0 ]; then
+            echo "Failed to install SQL Server packages"
+            exit 1
+          fi
 
-          #Add tools to system path for GitHub Actions
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
-
           echo "SQL Server Client installation completed successfully!"
 
       - name: Test Database Connection
