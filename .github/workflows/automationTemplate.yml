@@ -51,16 +51,33 @@ jobs:
         run: |
           set -e
           echo "Installing SQL Server Client..."
+
+          # Remove any existing Microsoft repository list
+          sudo rm -f /etc/apt/sources.list.d/mssql-release.list
+
+          # Remove conflicting key files
+          sudo rm -f /usr/share/keyrings/microsoft-prod.gpg
+          sudo rm -f /usr/share/keyrings/microsoft-archive-keyring.gpg
+          
+          #install prerequisities
           sudo apt-get update && sudo apt-get install -y curl gnupg unixodbc-dev
-          
+
+          # Add Microsoft signing key
           curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo tee /usr/share/keyrings/microsoft-archive-keyring.gpg > /dev/null
-          
+
+          #Add Microsoft repository using the correct key file
           echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/ubuntu/24.04/prod noble main" | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          
+
+          #Update package lists again
           sudo apt-get update
+
+          #Install SQL Server ODBC Driver and tools
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18
-          
+
+          #Add tools to system path for GitHub Actions
           echo "/opt/mssql-tools18/bin" >> $GITHUB_PATH
+
+          echo "SQL Server Client installation completed successfully!"
 
       - name: Test Database Connection
         env:
