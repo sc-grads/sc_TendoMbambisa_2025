@@ -92,3 +92,34 @@ top #Interactive process viewer
 htop #Alternative interactive process viewer
 
 jobs #lists jobs in your directory
+
+# -----------------------------------
+# Installing in ubuntu
+# -----------------------------------
+sudo apt install nginx #Install Nginx
+
+sudo apt update #refresh the list of available software format: sudo apt install <package>
+
+systemctl status nginx # checks if nginx is running format: systemctl status <service>
+
+curl 127.0.0.1 # test if nginx is installed
+
+sudo apt install mysql-server -y # install mysql
+
+curl #Test web requests or download files.
+
+ip a # Show network info.
+
+mysql -u root #login into mysql
+
+CREATE DATABASE wordpress; #create database in sql
+
+CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'wordpress123'; #create user in sql
+
+GRANT ALL PRIVILEGES ON wordpress.* TO 'WordPress'@'localhost'; #grant pemrmissions 
+
+exit; #exit SQL
+
+mysql -u wordpress -p wordpress #test user in sql
+
+sudo apt install php-fpm php-mysql php-curl php-mbstring php-imagick php-xml php-zip -y # install php
