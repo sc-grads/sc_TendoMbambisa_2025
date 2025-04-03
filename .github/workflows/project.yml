@@ -6,7 +6,7 @@ on:
 jobs:
   setup-sql-dev:
     name: Development
-    uses: ./.github/workflows/automationTemplate.yml
+    uses: ./.github/workflows/automationTemplate.yml  # Path to your reusable workflow
     with:
       environment_name: Development
     secrets:
@@ -16,11 +16,11 @@ jobs:
 
   setup-sql-prod:
     name: Production
-    needs: setup-sql-dev  # Ensure Production runs only if Development succeeds
-    uses: ./.github/workflows/automationTemplate.yml
+    needs: setup-sql-dev  # Ensures Production runs after Development succeeds
+    uses: ./.github/workflows/automationTemplate.yml  # Path to your reusable workflow
     with:
       environment_name: Production
     secrets:
-      PINGGY_HOST: ${{ secrets.DEV_PINGGY_HOST }}
+      PINGGY_HOST: ${{ secrets.PROD_PINGGY_HOST }}  # Changed to match typical prod secret naming
       DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
-      SQL_USER: ${{ secrets.PRO_SQL_USER }}
+      SQL_USER: ${{ secrets.PROD_SQL_USER }}  # Fixed typo from PRO_SQL_USER to PROD_SQL_USER
