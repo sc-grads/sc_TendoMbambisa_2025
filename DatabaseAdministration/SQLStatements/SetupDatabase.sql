@@ -25,16 +25,22 @@ CREATE OR ALTER PROCEDURE [dbo].[InsertUser]
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    MERGE INTO [user] AS target
-    USING (SELECT @p_name, @p_surname, @p_email) AS source (Name, Surname, Email)
-    ON (target.Email = source.Email)
-    WHEN MATCHED THEN
-        UPDATE SET Name = source.Name, Surname = source.Surname
-    WHEN NOT MATCHED THEN
-        INSERT (Name, Surname, Email) VALUES (source.Name, source.Surname, source.Email);
+
+    BEGIN TRY
+        MERGE INTO [user] AS target
+        USING (SELECT @p_name, @p_surname, @p_email) AS source (Name, Surname, Email)
+        ON (target.Email = source.Email)
+        WHEN MATCHED THEN
+            UPDATE SET Name = source.Name, Surname = source.Surname
+        WHEN NOT MATCHED THEN
+            INSERT (Name, Surname, Email) VALUES (source.Name, source.Surname, source.Email);
+    END TRY
+    BEGIN CATCH
+        PRINT 'Error occurred: ' + ERROR_MESSAGE();
+    END CATCH
 END;
 GO
+
 
 -- Insert sample data
 EXEC [dbo].[InsertUser] 'John', 'Doe', 'john.doe@example.com';
