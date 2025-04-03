@@ -1,27 +1,8 @@
-name: AutoTest Database Automation
-
+name: Test Runner
 on:
   workflow_dispatch:
-
 jobs:
-  setup-sql-dev:
-    name: Development
-    uses: ./.github/workflows/automationTemplate.yml
-    with:
-      environment_name: Development
-    secrets:
-      PINGGY_HOST: ${{ secrets.PINGGY_HOST }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      SQL_USER: ${{ secrets.SQL_USER }}
-
-  setup-sql-prod:
-    name: Production
-    needs: setup-sql-dev  # Ensure Production runs only if Development succeeds
-    uses: ./.github/workflows/automationTemplate.yml
-    with:
-      environment_name: Production
-    secrets:
-      PINGGY_HOST: ${{ secrets.DEV_PINGGY_HOST }}
-      DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
-      SQL_USER: ${{ secrets.PRO_SQL_USER }}
-
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Runner is working!"
