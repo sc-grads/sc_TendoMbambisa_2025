@@ -16,8 +16,8 @@ on:
 
 jobs:
   setup-sql:
-    name: Setup SQL Server (${{ inputs.environment_name }})
-    runs-on: ubuntu-22.04
+    name: Setup SQL Server 
+    runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment_name }}
     steps:
