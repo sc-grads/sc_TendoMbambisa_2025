@@ -21,6 +21,6 @@ jobs:
     with:
       environment_name: Production
     secrets:
-      PINGGY_HOST: ${{ secrets.PROD_PINGGY_HOST }}  # Changed to match typical prod secret naming
+      PINGGY_HOST: ${{ secrets.DEV_PINGGY_HOST }}  # Changed to match typical prod secret naming
       DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
       SQL_USER: ${{ secrets.PROD_SQL_USER }}  # Fixed typo from PRO_SQL_USER to PROD_SQL_USER
