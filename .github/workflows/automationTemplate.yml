@@ -112,8 +112,8 @@ jobs:
 
           if [ $EXIT_CODE -ne 0 ]; then
             echo "::error::Database setup failed for ${{ inputs.environment_name }} with exit code $EXIT_CODE"
-            cat output.log
+            tail -n 20 output.log
             exit 1
           fi
           echo "✅ Database setup successful for ${{ inputs.environment_name }}!"
-          cat output.log
+          tail -n 10 output.log
